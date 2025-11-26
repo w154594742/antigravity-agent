@@ -77,25 +77,18 @@ fn get_antigravity_process_patterns() -> Vec<ProcessPattern> {
     match std::env::consts::OS {
         "macos" => {
             vec![
-                // 主要进程模式
+                // 主要进程：精确匹配主进程名，必须结合路径验证
                 ProcessPattern::ExactName("Antigravity"),
-                ProcessPattern::ExactName("Antigravity.app"),
-                ProcessPattern::ExactName("Electron"), // 如果Electron进程包含Antigravity路径
+                ProcessPattern::ExactName("Electron"), // 仅当路径验证通过时
 
-                // macOS Electron 特有的进程名
-                ProcessPattern::Contains("Antigravity"),
-                ProcessPattern::Contains("Antigravity Helper"),
-                ProcessPattern::EndsWith("(Renderer)"),
-                ProcessPattern::EndsWith("(GPU)"),
+                // 精确路径匹配：确保只匹配真正的 Antigravity.app
+                ProcessPattern::CmdContains("/Applications/Antigravity.app/Contents/MacOS/Electron"),
+                ProcessPattern::CmdContains("/Applications/Antigravity.app/Contents/MacOS/Antigravity"),
+                ProcessPattern::CmdContains("Antigravity.app/Contents/Frameworks/Antigravity Helper"),
 
-                // 命令行匹配
-                ProcessPattern::CmdContains("Antigravity.app"),
-                ProcessPattern::CmdContains("/Applications/Antigravity"),
-                ProcessPattern::CmdContains("Applications/Antigravity"),
-
-                // .app 包路径匹配
-                ProcessPattern::CmdEndsWith(".app/Contents/MacOS/Electron"),
-                ProcessPattern::CmdEndsWith(".app/Contents/MacOS/Antigravity"),
+                // 便携版支持：允许非 /Applications 路径，但必须包含完整应用结构
+                ProcessPattern::CmdEndsWith("/Antigravity.app/Contents/MacOS/Electron"),
+                ProcessPattern::CmdEndsWith("/Antigravity.app/Contents/MacOS/Antigravity"),
             ]
         }
         "windows" => {
@@ -140,12 +133,6 @@ fn matches_antigravity_process(process_name: &str, process_cmd: &str, patterns: 
                     return true;
                 }
             }
-            ProcessPattern::EndsWith(suffix) => {
-                if process_name.ends_with(suffix) || process_cmd.ends_with(suffix) {
-                    tracing::debug!("✅ 后缀匹配: {}", suffix);
-                    return true;
-                }
-            }
             ProcessPattern::CmdContains(text) => {
                 if process_cmd.contains(text) {
                     tracing::debug!("✅ 命令行包含匹配: {}", text);
@@ -168,7 +155,6 @@ fn matches_antigravity_process(process_name: &str, process_cmd: &str, patterns: 
 pub enum ProcessPattern {
     ExactName(&'static str),    // 精确匹配进程名
     Contains(&'static str),      // 包含指定文本
-    EndsWith(&'static str),      // 以指定文本结尾
     CmdContains(&'static str),   // 命令行包含指定文本
     CmdEndsWith(&'static str),   // 命令行以指定文本结尾
 }

@@ -67,7 +67,7 @@ pub async fn language_server_get_user_status(
 
 
     // 打印完整的请求信息
-    let body_str = String::from_utf8_lossy(&body_bytes);
+    let _body_str = String::from_utf8_lossy(&body_bytes);
     // tracing::info!(
     //     target_url = %target_url,
     //     https_port = port,

@@ -68,15 +68,7 @@ const BusinessSettingsDialog: React.FC<BusinessSettingsDialogProps> = ({
     setIsLoading(true);
     try {
       const paths = await AntigravityPathService.getCurrentPaths();
-      let finalDataPath = paths.dataPath;
       let finalExecPath = paths.executablePath;
-
-      if (!finalDataPath) {
-        const detectedData = await AntigravityPathService.detectAntigravityPath();
-        if (detectedData.found && detectedData.path) {
-          finalDataPath = detectedData.path + ' (自动检测)';
-        }
-      }
 
       if (!finalExecPath) {
         const detectedExec = await AntigravityPathService.detectExecutable();
@@ -85,7 +77,7 @@ const BusinessSettingsDialog: React.FC<BusinessSettingsDialogProps> = ({
         }
       }
 
-      setDataPath(finalDataPath || '未设置');
+      setDataPath('自动检测');
       setExecPath(finalExecPath || '未设置');
     } catch (error) {
       logger.error('加载路径失败', {
@@ -93,7 +85,7 @@ const BusinessSettingsDialog: React.FC<BusinessSettingsDialogProps> = ({
         action: 'load_paths_failed',
         error: error instanceof Error ? error.message : String(error)
       });
-      setDataPath('加载失败');
+      setDataPath('自动检测');
       setExecPath('加载失败');
     } finally {
       setIsLoading(false);
@@ -155,29 +147,7 @@ const BusinessSettingsDialog: React.FC<BusinessSettingsDialogProps> = ({
     }
   };
 
-  const handleBrowseDataPath = async () => {
-    try {
-      const result = await open({
-        directory: true,
-        multiple: false,
-        title: '选择 Antigravity 数据目录',
-      });
-
-      if (result && typeof result === 'string') {
-        const valid = await AntigravityPathService.validatePath(result);
-        if (valid) {
-          await AntigravityPathService.savePath(result);
-          setDataPath(result);
-          showMessage('数据库路径已更新', 'success');
-        } else {
-          showMessage('无效的数据目录：未找到 state.vscdb 文件', 'warning');
-        }
-      }
-    } catch (error) {
-      showMessage(`选择失败: ${error}`, 'error');
-    }
-  };
-
+  
   const handleBrowseExecPath = async () => {
     try {
       const result = await open({
@@ -250,7 +220,7 @@ const BusinessSettingsDialog: React.FC<BusinessSettingsDialogProps> = ({
             <p className="text-gray-400 mt-3 text-xs">加载中...</p>
           </div>
         ) : (
-          <div className="p-5 space-y-6">
+          <div className="px-5 space-y-6">
             {/* 消息提示 - 浮动式 */}
             {message && (
               <div className={cn(
@@ -268,24 +238,6 @@ const BusinessSettingsDialog: React.FC<BusinessSettingsDialogProps> = ({
               <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-1">路径配置</h3>
 
               <div className="space-y-3">
-                <div className="group">
-                  <label className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5 block px-1">数据库路径</label>
-                  <div className="flex gap-2">
-                    <div className="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md px-3 py-2 text-xs font-mono text-gray-600 dark:text-gray-400 break-all select-all transition-colors group-hover:border-gray-300 dark:group-hover:border-gray-700">
-                      {dataPath}
-                    </div>
-                    <BaseButton
-                      variant="outline"
-                      size="icon"
-                      className="h-[34px] w-[34px] shrink-0 border-gray-200 dark:border-gray-800"
-                      onClick={handleBrowseDataPath}
-                      title="选择数据库路径"
-                    >
-                      <FolderOpen className="h-4 w-4 text-gray-500" />
-                    </BaseButton>
-                  </div>
-                </div>
-
                 <div className="group">
                   <label className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5 block px-1">可执行文件</label>
                   <div className="flex gap-2">

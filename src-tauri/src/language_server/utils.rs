@@ -8,7 +8,7 @@ use walkdir::WalkDir;
 use read_process_memory as _;
 
 use super::cache::get_cache_manager;
-use super::types::{PortInfo, CacheStats, CacheInitResult};
+use super::types::{PortInfo, CacheInitResult};
 
 #[cfg(target_os = "windows")]
 use crate::language_server::windows::scan_process_for_token;
@@ -23,14 +23,6 @@ pub(crate) const SCAN_AHEAD: usize = 200;
 pub(crate) const CHUNK_SIZE: usize = 512 * 1024; // 512KB 分块读取，降低单次读耗时
 pub(crate) const MAX_REGION_BYTES: usize = 64 * 1024 * 1024; // 每个区域最多扫描 64MB，加速
 
-/// 获取当前 Antigravity 进程 ID
-fn get_current_antigravity_process_id() -> Result<Option<u32>> {
-    let pids = collect_target_pids();
-    if pids.is_empty() {
-        return Ok(None);
-    }
-    Ok(pids.first().copied())
-}
 
 /// 查找最新的 Antigravity.log（按修改时间）
 pub fn find_latest_antigravity_log() -> Option<PathBuf> {
@@ -184,29 +176,6 @@ pub(crate) fn search_bytes_for_token(data: &[u8], uuid_re: &Regex, patterns: &(V
     None
 }
 
-pub fn find_csrf_token_from_memory() -> Result<String> {
-    let uuid_re = Regex::new(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
-        .expect("valid uuid regex");
-    let patterns = get_patterns();
-
-    let pids = collect_target_pids();
-    if pids.is_empty() {
-        return Err(anyhow!("未找到运行中的 Antigravity/Windsurf 进程"));
-    }
-
-    for pid in pids {
-        match scan_process_for_token(pid, &uuid_re, &patterns) {
-            Ok(Some(token)) => return Ok(token),
-            Ok(None) => continue,
-            Err(e) => {
-                tracing::warn!(pid, error = %e, "扫描进程失败");
-                continue;
-            }
-        }
-    }
-
-    Err(anyhow!("未在运行中的 Antigravity/Windsurf 进程内存中找到 CSRF token"))
-}
 
 /// 带 CSRF token 缓存的获取函数（使用 moka）
 pub async fn get_csrf_token_with_cache() -> Result<String> {
@@ -309,75 +278,7 @@ pub async fn get_ports_with_cache() -> Result<PortInfo> {
     Ok(port_info)
 }
 
-/// 带降级策略的 CSRF token 获取函数（直接同步版本）
-pub fn get_csrf_token_with_fallback() -> Result<String> {
-    match find_csrf_token_from_memory_direct() {
-        Ok(token) => {
-            tracing::info!("使用直接扫描获取 CSRF token 成功");
-            Ok(token)
-        }
-        Err(e) => {
-            tracing::warn!("直接扫描获取 CSRF token 失败: {}", e);
-            Err(e)
-        }
-    }
-}
 
-/// 带降级策略的端口信息获取函数（直接同步版本）
-pub fn get_ports_with_fallback() -> Result<PortInfo> {
-    // 直接解析，不使用缓存
-    match find_latest_antigravity_log() {
-        Some(log_path) => {
-            match std::fs::read_to_string(&log_path) {
-                Ok(content) => {
-                    let (https_port, http_port, extension_port) = parse_ports_from_log(&content);
-
-                    tracing::info!("直接解析端口信息成功");
-                    Ok(PortInfo {
-                        https_port,
-                        http_port,
-                        extension_port,
-                        log_path: Some(log_path.to_string_lossy().to_string()),
-                    })
-                }
-                Err(e) => {
-                    let error_msg = format!("读取日志失败: {e}");
-                    tracing::warn!("{}", error_msg);
-                    Err(anyhow!(error_msg))
-                }
-            }
-        }
-        None => {
-            let error_msg = "未找到 Antigravity.log";
-            tracing::warn!("{}", error_msg);
-            Err(anyhow!(error_msg))
-        }
-    }
-}
-
-/// 清空 CSRF token 缓存
-pub fn clear_csrf_cache() {
-    let cache = get_cache_manager();
-    cache.clear_csrf_cache();
-}
-
-/// 清空端口信息缓存
-pub fn clear_ports_cache() {
-    let cache = get_cache_manager();
-    cache.clear_ports_cache();
-}
-
-/// 清空所有缓存
-pub fn clear_all_cache() {
-    let cache = get_cache_manager();
-    cache.clear_all();
-}
-
-/// 获取缓存统计信息
-pub fn get_cache_stats() -> CacheStats {
-    let cache = get_cache_manager();
-    cache.get_stats()
-}
 
 /// 初始化锁，防止并发初始化
 static INIT_LOCK: std::sync::OnceLock<tokio::sync::Mutex<()>> = std::sync::OnceLock::new();

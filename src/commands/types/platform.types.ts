@@ -49,9 +49,6 @@ export interface DetectionResult {
  * 路径配置
  */
 export interface PathConfig {
-  /** 数据目录路径 */
-  dataPath?: string | null;
-
   /** 可执行文件路径 */
   executablePath?: string | null;
 }

@@ -103,7 +103,7 @@ const BusinessUserDetail: React.FC<BusinessUserDetailProps> = ({
     isMultiline?: boolean;
   }) => (
     <div className="group">
-      <label className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5 block px-1 flex items-center gap-2">
+      <label className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1.5 px-1 flex items-center gap-2">
         {icon}
         <span>{label}</span>
       </label>
@@ -146,14 +146,6 @@ const BusinessUserDetail: React.FC<BusinessUserDetailProps> = ({
               <User className="h-4 w-4 text-gray-500" />
               <span>用户详情</span>
             </BaseDialogTitle>
-            <BaseButton
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 text-gray-400 hover:text-gray-600"
-              onClick={() => onOpenChange(false)}
-            >
-              <X className="h-4 w-4" />
-            </BaseButton>
           </div>
         </BaseDialogHeader>
 

@@ -49,7 +49,6 @@ export interface AntigravityExecutableInfo {
 
 // 当前配置的路径信息
 export interface CurrentPaths {
-  dataPath: string | null;
   executablePath: string | null;
 }
 

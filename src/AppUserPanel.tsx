@@ -1,50 +1,52 @@
-import React, {useEffect, useState} from 'react';
-import {Trash2} from 'lucide-react';
-import {maskBackupFilename} from '../../utils/username-masking';
-import {useUserManagement} from '@/modules/user-management/store';
-import {BaseTooltip} from '@/components/base-ui/BaseTooltip';
-import {BaseButton} from '@/components/base-ui/BaseButton';
-import {BaseSpinner} from '@/components/base-ui/BaseSpinner';
-import BusinessConfirmDialog from './ConfirmDialog';
-import BusinessActionButton from './ActionButton';
-import type {AntigravityAccount} from '@/commands/types/account.types';
-import {useLanguageServerState} from "@/hooks/use-language-server-state.ts";
+import React, {useCallback, useEffect, useState} from "react";
+import type {AntigravityAccount} from "@/commands/types/account.types.ts";
+import BusinessUserDetail from "@/components/business/UserDetail.tsx";
+import {useUserManagement} from "@/modules/user-management/store.ts";
 import {useLanguageServerUserInfo} from "@/modules/use-language-server-user-info.ts";
+import {useLanguageServerState} from "@/hooks/use-language-server-state.ts";
+import {BaseTooltip} from "@/components/base-ui/BaseTooltip.tsx";
+import BusinessActionButton from "@/components/business/ActionButton.tsx";
+import {Trash2} from "lucide-react";
+import {maskBackupFilename} from "@/utils/username-masking.ts";
 import {GlassProgressBar} from "@/components/base-ui/GlassProgressBar.tsx";
+import {BaseButton} from "@/components/base-ui/BaseButton.tsx";
+import BusinessConfirmDialog from "@/components/business/ConfirmDialog.tsx";
 
-interface BusinessManageSectionProps {
-  showStatus: (message: string, isError?: boolean) => void;
-  isInitialLoading?: boolean;
-  onUserClick?: (user: AntigravityAccount) => void;
-}
+export function AppUserPanel() {
+  const [isUserDetailOpen, setIsUserDetailOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<AntigravityAccount | null>(null);
+  const showStatus = (...args: any) => {}
 
-const BusinessManageSection: React.FC<BusinessManageSectionProps> = ({
-  showStatus,
-  isInitialLoading = false,
-  onUserClick
-}) => {
+  // 用户详情处理
+  const handleUserClick = useCallback((user: AntigravityAccount) => {
+    setSelectedUser(user);
+    setIsUserDetailOpen(true);
+  }, []);
+
+  const handleUserDetailClose = useCallback(() => {
+    setIsUserDetailOpen(false);
+    setSelectedUser(null);
+  }, []);
+
   const {users, getUsers, deleteUser, clearAllUsers, switchUser, getCurrentUser} = useUserManagement();
   // email
   const [currentUser, setCurrentUser] = useState<string>(null);
   const languageServerUserInfo = useLanguageServerUserInfo();
   const {isLanguageServerStateInitialized} = useLanguageServerState();
-  const [isLoading, setIsLoading] = useState(true);
 
   // 组件挂载时获取用户列表
   useEffect(() => {
     const loadUsers = async () => {
       try {
-        setIsLoading(true);
         await getUsers();
       } catch (error) {
         showStatus(`获取用户列表失败: ${error}`, true);
       } finally {
-        setIsLoading(false);
       }
     };
 
     loadUsers();
-  }, [getUsers, showStatus]);
+  }, []);
 
   useEffect(() => {
     if (isLanguageServerStateInitialized) {
@@ -141,81 +143,76 @@ const BusinessManageSection: React.FC<BusinessManageSectionProps> = ({
           )}
         </div>
         <div className={users.length === 0 ? "backup-list-empty" : "backup-list-vertical"}>
-          {isLoading || isInitialLoading ? (
-            <div className="flex flex-col items-center justify-center py-8 text-light-text-muted">
-              <BaseSpinner size="lg" />
-              <p className="mt-3">正在加载用户列表...</p>
-            </div>
-          ) : users.length === 0 ? (
+          { users.length === 0 ? (
             <p className="text-light-text-muted">暂无用户</p>
           ) : (
             users.map((user, index) => {
-        const avatarUrl = getAvatarUrl(user.profile_url);
-        return (
-              <div
-                key={`${user.email}-${index}`}
-                className="backup-item-vertical cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors group"
-                onClick={() => onUserClick?.(user)}
-                title="点击查看用户详情"
-              >
-                <div className="flex items-center gap-2 flex-1 min-w-0 pr-3">
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt={user.name}
-                      className="h-6 w-6 rounded-full object-cover border border-gray-200 dark:border-gray-700 group-hover:border-blue-400 dark:group-hover:border-blue-600 transition-colors flex-shrink-0"
-                    />
-                  ) : (
-                    <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
-                      {user.name.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                  <BaseTooltip content={user.email} side="bottom" className="flex-1 min-w-0">
+              const avatarUrl = getAvatarUrl(user.profile_url);
+              return (
+                <div
+                  key={`${user.email}-${index}`}
+                  className="backup-item-vertical cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors group"
+                  onClick={() => handleUserClick(user)}
+                  title="点击查看用户详情"
+                >
+                  <div className="flex items-center gap-2 flex-1 min-w-0 pr-3">
+                    {avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt={user.name}
+                        className="h-6 w-6 rounded-full object-cover border border-gray-200 dark:border-gray-700 group-hover:border-blue-400 dark:group-hover:border-blue-600 transition-colors flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+                        {user.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <BaseTooltip content={user.email} side="bottom" className="flex-1 min-w-0">
                     <span className="backup-name text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                       {maskBackupFilename(user.email)}
                     </span>
-                  </BaseTooltip>
-                </div>
-                <div className="flex gap-2 flex-shrink-0 items-center">
-                  {
-                    currentUser === user.email && languageServerUserInfo.users[user.id] && <div className={"flex flex-col flex-wrap gap-1"}>
-                      {languageServerUserInfo.users[user.id].userStatus.cascadeModelConfigData.clientModelConfigs.map((model) => {
-                        return <GlassProgressBar
-                          key={model.label}
-                          value={1 - model.quotaInfo.remainingFraction}
-                          gradientFrom="from-purple-500"
-                          gradientTo="to-pink-500"
-                          label={model.label}
-                          className={"h-5"}
-                        />
-                      })}
-                    </div>
-                  }
-                  <BaseTooltip content="切换到此用户并自动启动 Antigravity" side="bottom">
+                    </BaseTooltip>
+                  </div>
+                  <div className="flex gap-2 flex-shrink-0 items-center">
+                    {
+                      currentUser === user.email && languageServerUserInfo.users[user.id] && <div className={"flex flex-col flex-wrap gap-1"}>
+                        {languageServerUserInfo.users[user.id].userStatus.cascadeModelConfigData.clientModelConfigs.map((model) => {
+                          return <GlassProgressBar
+                            key={model.label}
+                            value={1 - model.quotaInfo.remainingFraction}
+                            gradientFrom="from-purple-500"
+                            gradientTo="to-pink-500"
+                            label={model.label}
+                            className={"h-5"}
+                          />
+                        })}
+                      </div>
+                    }
+                    <BaseTooltip content="切换到此用户并自动启动 Antigravity" side="bottom">
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <BusinessActionButton
+                          variant="default"
+                          size="sm"
+                          onClick={() => handleSwitchAccount(user.email)}
+                          loadingText="切换中..."
+                        >
+                          切换
+                        </BusinessActionButton>
+                      </div>
+                    </BaseTooltip>
                     <div onClick={(e) => e.stopPropagation()}>
-                      <BusinessActionButton
-                        variant="default"
+                      <BaseButton
+                        variant="destructive"
                         size="sm"
-                        onClick={() => handleSwitchAccount(user.email)}
-                        loadingText="切换中..."
+                        onClick={() => handleDeleteBackup(user.email)}
                       >
-                        切换
-                      </BusinessActionButton>
+                        删除
+                      </BaseButton>
                     </div>
-                  </BaseTooltip>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <BaseButton
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDeleteBackup(user.email)}
-                    >
-                      删除
-                    </BaseButton>
                   </div>
                 </div>
-              </div>
-            );
-        })
+              );
+            })
           )}
         </div>
       </section>
@@ -245,8 +242,12 @@ const BusinessManageSection: React.FC<BusinessManageSectionProps> = ({
         isLoading={false}
         confirmText="确认删除"
       />
+
+      <BusinessUserDetail
+        isOpen={isUserDetailOpen}
+        onOpenChange={handleUserDetailClose}
+        user={selectedUser}
+      />
     </>
   );
-};
-
-export default BusinessManageSection;
+}

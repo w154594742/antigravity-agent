@@ -24,42 +24,7 @@ export class AntigravityPathService {
         }
     }
 
-    /**
-     * 验证指定路径是否有效
-     * @param path 要验证的路径
-     */
-    static async validatePath(path: string): Promise<boolean> {
-        try {
-            const isValid = await invoke<boolean>('validate_antigravity_path', { path });
-            return isValid;
-        } catch (error) {
-            logger.error('验证路径失败', {
-                module: 'AntigravityPathService',
-                action: 'validate_path_failed',
-                error: error instanceof Error ? error.message : String(error)
-              });
-            return false;
-        }
-    }
-
-    /**
-     * 保存用户选择的数据路径
-     * @param path 要保存的路径
-     */
-    static async savePath(path: string): Promise<string> {
-        try {
-            const result = await invoke<string>('save_antigravity_path', { path });
-            return result;
-        } catch (error) {
-            logger.error('保存路径失败', {
-                module: 'AntigravityPathService',
-                action: 'save_path_failed',
-                error: error instanceof Error ? error.message : String(error)
-              });
-            throw new Error(`保存失败: ${error}`);
-        }
-    }
-
+  
     /**
      * 检测 Antigravity 可执行文件路径
      */
