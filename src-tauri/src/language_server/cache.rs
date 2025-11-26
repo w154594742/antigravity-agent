@@ -59,18 +59,7 @@ impl CacheManager {
         tracing::info!("端口信息已缓存");
     }
 
-    /// 清空 CSRF token 缓存
-    pub fn clear_csrf_cache(&self) {
-        self.csrf_cache.invalidate_all();
-        tracing::info!("CSRF token 缓存已清空");
-    }
-
-    /// 清空端口信息缓存
-    pub fn clear_ports_cache(&self) {
-        self.ports_cache.invalidate_all();
-        tracing::info!("端口信息缓存已清空");
-    }
-
+    
     /// 清空所有缓存
     pub fn clear_all(&self) {
         self.csrf_cache.invalidate_all();
@@ -167,7 +156,6 @@ pub fn get_stats() -> CacheStats {
 
 /// 从进程内存中查找 CSRF token
 fn find_csrf_token_from_memory() -> Result<String> {
-    use sysinfo::System;
     
     let uuid_re = Regex::new(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
         .expect("valid uuid regex");
@@ -256,13 +244,3 @@ fn get_search_patterns() -> (Vec<u8>, Vec<u8>) {
     (pat_utf8, pat_utf16)
 }
 
-/// 检查指定进程是否仍在运行
-pub async fn is_process_still_running(pid: u32) -> Result<bool> {
-    tokio::task::spawn_blocking(move || {
-        use sysinfo::System;
-
-        let mut system = System::new();
-        system.refresh_processes();
-        Ok(system.process(sysinfo::Pid::from(pid as usize)).is_some())
-    }).await?
-}

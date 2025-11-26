@@ -183,7 +183,7 @@ fn try_start_from_path(path: &PathBuf) -> Result<String, String> {
             Ok(_) => {
                 return Ok("Antigravity 已启动".to_string());
             }
-            Err(e1) => {
+            Err(_e1) => {
                 // 方法2: 尝试直接执行可执行文件
                 let exec_names = ["Electron", "Antigravity", "antigravity"];
                 for exec_name in &exec_names {
@@ -214,7 +214,7 @@ fn try_start_from_path(path: &PathBuf) -> Result<String, String> {
                     Ok(_) => {
                         return Ok("Antigravity 已启动".to_string());
                     }
-                    Err(e3) => {
+                    Err(_e3) => {
                         return Err("启动 Antigravity 失败".to_string());
                     }
                 }

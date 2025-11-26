@@ -340,8 +340,7 @@ export const useConfigStore = create<ConfigState & ConfigActions>()(
 export function useConfigManager(
   showStatus: (message: string, isError?: boolean) => void,
   showPasswordDialog: (config: PasswordDialogConfig) => void,
-  closePasswordDialog: () => void,
-  isRefreshing?: boolean
+  closePasswordDialog: () => void
 ) {
   const {
     isImporting,

@@ -1,6 +1,6 @@
 use tauri::{App, Manager};
 use std::sync::Arc;
-use crate::{app_settings, system_tray, db_monitor, window, state::AppState};
+use crate::{app_settings, system_tray, db_monitor, window};
 
 pub fn init(app: &mut App) -> std::result::Result<(), Box<dyn std::error::Error>> {
     tracing::info!(target: "app::setup", "开始应用程序设置");

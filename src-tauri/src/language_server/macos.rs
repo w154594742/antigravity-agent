@@ -1,9 +1,12 @@
 use anyhow::{anyhow, Result};
 use mach2::kern_return::KERN_SUCCESS;
-use mach2::mach_port::mach_port_name_t;
 use mach2::message::mach_msg_type_number_t;
-use mach2::traps::mach_task_self;
-use mach2::vm::*;
+use mach2::port::mach_port_name_t;
+use mach2::traps::{mach_task_self, task_for_pid};
+use mach2::vm_types::{integer_t, mach_vm_address_t, mach_vm_size_t};
+use mach2::vm_prot::VM_PROT_READ;
+use mach2::vm_region::{vm_region_basic_info_data_64_t, VM_REGION_BASIC_INFO_64};
+use mach2::vm::mach_vm_region;
 use read_process_memory::{CopyAddress, Pid, ProcessHandle};
 use regex::Regex;
 use std::convert::TryInto;

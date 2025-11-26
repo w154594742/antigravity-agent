@@ -71,22 +71,6 @@ pub struct UserStatusRequest {
 }
 
 
-/// 扫描配置常量
-pub struct ScanConfig {
-    pub scan_ahead: usize,
-    pub chunk_size: usize,
-    pub max_region_bytes: usize,
-}
-
-impl Default for ScanConfig {
-    fn default() -> Self {
-        Self {
-            scan_ahead: 200,
-            chunk_size: 512 * 1024, // 512KB
-            max_region_bytes: 64 * 1024 * 1024, // 64MB
-        }
-    }
-}
 
 /// 缓存配置常量
 pub struct CacheConfig {

@@ -13,7 +13,6 @@ interface UseAntigravityProcessResult {
  */
 export function useAntigravityProcess(
     showStatus: (message: string, isError?: boolean) => void,
-    onRefresh: () => void
 ): UseAntigravityProcessResult {
     const [isProcessLoading, setIsProcessLoading] = useState(false);
 
@@ -53,7 +52,6 @@ export function useAntigravityProcess(
                     module: 'ProcessManager',
                     action: 'refresh_ui'
                 });
-                onRefresh();
             }, 1000);
 
         } catch (error) {
@@ -71,7 +69,7 @@ export function useAntigravityProcess(
                 action: 'reset_loading_state'
             });
         }
-    }, [showStatus, onRefresh]);
+    }, [showStatus]);
 
     return {
         isProcessLoading,

@@ -77,9 +77,7 @@ fn main() {
             find_antigravity_installations,
             get_current_paths,
             // 数据库路径相关
-            validate_antigravity_path,
             detect_antigravity_installation,
-            save_antigravity_path,
             // 可执行文件路径相关
             validate_antigravity_executable,
             detect_antigravity_executable,
