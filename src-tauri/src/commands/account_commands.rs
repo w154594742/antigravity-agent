@@ -494,6 +494,20 @@ pub async fn switch_to_antigravity_account(account_name: String) -> Result<Strin
         // 等待一秒确保进程完全关闭
         tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
 
+        // 1.5. 完全清除当前登录状态（防止云端同步覆盖）
+        tracing::info!(target: "account::switch::step1.5", "清除当前登录状态");
+        match crate::antigravity::cleanup::clear_all_antigravity_data().await {
+            Ok(msg) => {
+                tracing::debug!(target: "account::switch::step1.5", "清除成功: {}", msg);
+            }
+            Err(e) => {
+                tracing::warn!(target: "account::switch::step1.5", "清除失败（可能已经是空的）: {}", e);
+                // 清除失败不阻断流程，继续执行
+            }
+        }
+        // 等待500毫秒确保清除操作完成
+        tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+
         // 2. 恢复指定账户到 Antigravity 数据库
         let restore_result = restore_antigravity_account(account_name.clone()).await?;
         tracing::debug!(target: "account::switch::step2", result = %restore_result, "账户数据恢复完成");
