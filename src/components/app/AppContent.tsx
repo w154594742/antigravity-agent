@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import type {AntigravityAccount} from "@/commands/types/account.types.ts";
+import type {AntigravityAccountData} from "@/commands/types/account.types.ts";
 import BusinessUserDetail from "@/components/business/AccountDetailModal.tsx";
 import {useAntigravityAccount, useCurrentAntigravityAccount} from "@/modules/use-antigravity-account.ts";
 import {useAvailableModels} from "@/modules/use-available-models.ts";
@@ -13,7 +13,7 @@ import {AccountSessionList, AccountSessionListAccountItem} from "@/components/bu
 
 export function AppContent() {
   const [isUserDetailOpen, setIsUserDetailOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<AntigravityAccount | null>(null);
+  const [selectedUser, setSelectedUser] = useState<AntigravityAccountData | null>(null);
   const antigravityAccount = useAntigravityAccount();
   const availableModels = useAvailableModels();
   const currentAntigravityAccount = useCurrentAntigravityAccount();
@@ -48,7 +48,7 @@ export function AppContent() {
 
   // 用户详情处理
   const handleUserClick = (account: AccountSessionListAccountItem) => {
-    const foundAccount = antigravityAccount.accounts.find(item => item.id === account.id);
+    const foundAccount = antigravityAccount.accounts.find(item => item.context.email === account.email);
     setSelectedUser(foundAccount);
     setIsUserDetailOpen(true);
   };
@@ -100,17 +100,16 @@ export function AppContent() {
   };
 
   const accounts: AccountSessionListAccountItem[] = antigravityAccount.accounts.map((account) => {
-    const model = availableModels.data[account.api_key]
+    const model = availableModels.data[account.context.email]
     let geminiQuota = model?.models["gemini-3-pro-high"].quotaInfo.remainingFraction || -1
     let claudeQuota = model?.models["claude-sonnet-4-5"].quotaInfo.remainingFraction || -1
 
     return {
       geminiQuota,
       claudeQuota,
-      email: account.email,
-      nickName: account.name,
-      userAvatar: account.profile_url,
-      id: account.id,
+      email: account.context.email,
+      nickName: account.context.plan_name,
+      userAvatar: "",
     }
   })
 
@@ -122,7 +121,7 @@ export function AppContent() {
           onSwitch={handleSwitchAccount}
           onDelete={handleDeleteBackup}
           onSelect={handleUserClick}
-          currentUserId={currentAntigravityAccount?.id}
+          currentUserEmail={currentAntigravityAccount?.context.email}
         />
       </section>
 

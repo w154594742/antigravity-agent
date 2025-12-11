@@ -10,12 +10,11 @@ export interface AccountSessionListAccountItem {
   email: string;
   nickName: string;
   userAvatar: string;
-  id: string;
 }
 
 export interface AccountSessionListProps {
   accounts: AccountSessionListAccountItem[];
-  currentUserId?: string;
+  currentUserEmail?: string;
   onSelect: (user: AccountSessionListAccountItem) => void;
   onSwitch: (user: AccountSessionListAccountItem) => void;
   onDelete: (user: AccountSessionListAccountItem) => void;
@@ -59,7 +58,7 @@ const itemVariants: Variants = {
 
 export function AccountSessionList({
                                      accounts,
-                                     currentUserId,
+                                     currentUserEmail,
                                      onSelect,
                                      onSwitch,
                                      onDelete,
@@ -81,7 +80,7 @@ export function AccountSessionList({
       <AnimatePresence mode="popLayout">
         {accounts.map((account) => (
           <motion.div
-            key={account.id}
+            key={account.email}
             layout // 关键：当有元素被删除时，其他元素会自动平滑移动填补空缺
             variants={itemVariants} // 继承父级的 hidden/show 状态
             className="z-10" // 确保在背景之上
@@ -90,7 +89,7 @@ export function AccountSessionList({
               geminiQuota={account.geminiQuota}
               claudeQuota={account.claudeQuota}
               userAvatar={account.userAvatar}
-              isCurrentUser={currentUserId === account.id}
+              isCurrentUser={currentUserEmail === account.email}
               email={maskEmail(account.email)}
               nickName={maskName(account.nickName)}
               onSelect={() => onSelect(account)}

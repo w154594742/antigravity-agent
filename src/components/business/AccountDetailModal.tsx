@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Check, Clock, Copy, Key, User} from 'lucide-react';
-import type {AntigravityAccount} from '@/commands/types/account.types';
+import type {AntigravityAccountData} from '@/commands/types/account.types';
 import {BaseButton} from '@/components/base-ui/BaseButton';
 import {cn} from '@/utils/utils';
 import {logger} from '@/utils/logger';
@@ -10,7 +10,7 @@ import {maskEmail} from "@/utils/string-masking.ts";
 interface BusinessUserDetailProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  user: AntigravityAccount | null;
+  user: AntigravityAccountData | null;
 }
 
 const BusinessUserDetail: React.FC<BusinessUserDetailProps> = ({
@@ -151,16 +151,16 @@ const BusinessUserDetail: React.FC<BusinessUserDetailProps> = ({
         {/* 用户头像和基本信息 */}
         <div className="flex items-center gap-4">
           <img
-            src={user.profile_url}
-            alt={user.name}
+            src={""}
+            alt={user.context.plan_name}
             className="h-16 w-16 rounded-full object-cover border-2 border-gray-100 dark:border-gray-800"
           />
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {user.name}
+              {user.context.plan_name}
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {user.email}
+              {user.context.email}
             </p>
           </div>
         </div>
@@ -173,18 +173,6 @@ const BusinessUserDetail: React.FC<BusinessUserDetailProps> = ({
           value={"****"}
           copyable
           fieldName="api_key"
-        />
-        <InfoItem
-          icon={<Clock className="h-4 w-4 text-gray-500"/>}
-          label="最近切换时间"
-          value={formatDateTime(user.last_switched)}
-        />
-        <InfoItem
-          icon={<Clock className="h-4 w-4 text-gray-500"/>}
-          label="用户 ID"
-          value={maskEmail(user.id)}
-          copyable
-          fieldName="id"
         />
       </div>
     </Modal>

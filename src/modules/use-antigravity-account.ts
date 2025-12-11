@@ -1,34 +1,15 @@
 import {create} from 'zustand';
 import {logger} from '../utils/logger.ts';
-import type {AntigravityCurrentUserInfo} from '../types/tauri.ts';
 import {AccountCommands} from '@/commands/AccountCommands.ts';
-import type {AntigravityAccount, AntigravityAuthInfo} from '@/commands/types/account.types.ts';
+import type {AntigravityAccountData, AntigravityAuthInfo} from '@/commands/types/account.types.ts';
 import {AccountManageCommands} from "@/commands/AccountManageCommands.ts";
 
 // 常量定义
 const FILE_WRITE_DELAY_MS = 500; // 等待文件写入完成的延迟时间
 
-// 将后端解码结果转为前端展示模型
-const toAccount = (info: AntigravityCurrentUserInfo, idx: number): AntigravityAccount => {
-  const email = info.context?.email ?? `unknown_${idx}`;
-  const name = email.split('@')[0] ?? email;
-  const api_key = info.auth?.access_token ?? '';
-
-  return {
-    ...info,
-    id: email || `account_${idx}`,
-    name,
-    email,
-    api_key,
-    profile_url: '', // 目前解码结果无头像，留空
-    created_at: '',
-    last_switched: '',
-  };
-};
-
 // Store 状态
 export interface AntigravityAccountState {
-  accounts: AntigravityAccount[];
+  accounts: AntigravityAccountData[];
   currentAuthInfo: AntigravityAuthInfo | null;
 }
 
@@ -43,7 +24,7 @@ export interface AntigravityAccountActions {
   clearAllAccounts: () => Promise<void>;
 
   // 查询
-  getAccounts: () => Promise<AntigravityAccount[]>;
+  getAccounts: () => Promise<AntigravityAccountData[]>;
 }
 
 // 创建 Store
@@ -83,9 +64,8 @@ export const useAntigravityAccount = create<AntigravityAccountState & Antigravit
         await new Promise(resolve => setTimeout(resolve, FILE_WRITE_DELAY_MS));
 
         // 5. 重新获取用户列表
-        const accountsRaw = await AccountCommands.getAntigravityAccounts();
-        const accounts = accountsRaw.map((info, idx) => toAccount(info, idx));
-        set({ accounts: accounts });
+        const accounts = await AccountCommands.getAntigravityAccounts();
+        set({ accounts });
       } else {
         throw new Error('未检测到有效的账户信息');
       }
@@ -118,20 +98,18 @@ export const useAntigravityAccount = create<AntigravityAccountState & Antigravit
     // 调用清空所有备份的命令
     await AccountManageCommands.clearAllBackups();
     // 清空成功后重新获取数据
-    const accountsRaw = await AccountCommands.getAntigravityAccounts();
-    const accounts = accountsRaw.map((info, idx) => toAccount(info, idx));
+    const accounts = await AccountCommands.getAntigravityAccounts();
     set({ accounts: accounts });
   },
 
   // ============ 查询 ============
-  getAccounts: async (): Promise<AntigravityAccount[]> => {
+  getAccounts: async (): Promise<AntigravityAccountData[]> => {
     try {
       // 从后端获取账户列表
-      const accountsRaw = await AccountCommands.getAntigravityAccounts();
-      const accounts = accountsRaw.map((info, idx) => toAccount(info, idx));
+      const accounts = await AccountCommands.getAntigravityAccounts();
 
       // 同步更新 store 中的状态
-      set({ accounts: accounts });
+      set({ accounts });
       return accounts;
     } catch (error) {
       logger.error('获取用户列表失败', {
@@ -144,4 +122,4 @@ export const useAntigravityAccount = create<AntigravityAccountState & Antigravit
   },
 }));
 
-export const useCurrentAntigravityAccount: () => AntigravityAccount | undefined = () => useAntigravityAccount(state => state.accounts.find(user => user.email === state.currentAuthInfo?.email));
+export const useCurrentAntigravityAccount: () => AntigravityAccountData | undefined = () => useAntigravityAccount(state => state.accounts.find(user => user.context.email === state.currentAuthInfo?.email));

@@ -50,7 +50,7 @@ export function useTrayMenu() {
   useEffect(() => {
     if (accounts.length > 0) {
       // 提取邮箱列表并更新托盘菜单
-      const emails = accounts.map((user) => user.email);
+      const emails = accounts.map((user) => user.context.email);
       updateTrayMenu(emails);
     } else {
       // 没有账户时清空托盘菜单

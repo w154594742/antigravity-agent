@@ -22,8 +22,8 @@ const meta = {
       description: '用户账户列表',
       control: 'object',
     },
-    currentUserId: {
-      description: '当前登录用户的 ID',
+    currentUserEmail: {
+      description: '当前登录用户的 Email',
       control: 'text',
     },
   },
@@ -42,7 +42,6 @@ type Story = StoryObj<typeof meta>;
 // 这里传入的是"未脱敏"的数据，组件内部会处理脱敏
 const mockAccounts: AccountSessionListAccountItem[] = [
   {
-    id: 'user_01',
     nickName: 'Admin User',
     email: 'admin.ops@company.com',
     userAvatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Admin',
@@ -50,7 +49,6 @@ const mockAccounts: AccountSessionListAccountItem[] = [
     claudeQuota: 0.92,
   },
   {
-    id: 'user_02',
     nickName: 'Jason Bourne',
     email: 'jason.bourne@cia.gov',
     userAvatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Jason',
@@ -58,7 +56,6 @@ const mockAccounts: AccountSessionListAccountItem[] = [
     claudeQuota: 0.40,
   },
   {
-    id: 'user_03',
     nickName: 'Unknown Guest',
     email: 'guest.temp@provider.net',
     userAvatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Guest',
@@ -76,7 +73,6 @@ const mockAccounts: AccountSessionListAccountItem[] = [
 export const Default: Story = {
   args: {
     accounts: mockAccounts,
-    currentUserId: 'user_01', // 模拟第一个用户是当前登录状态
   },
 };
 
@@ -87,7 +83,6 @@ export const Default: Story = {
 export const EmptyState: Story = {
   args: {
     accounts: [],
-    currentUserId: '',
   },
 };
 
@@ -102,6 +97,6 @@ export const GridWrapLayout: Story = {
       ...acc,
       id: `user_gen_${i}`, // 确保 key 唯一
     })),
-    currentUserId: 'user_gen_0',
+    currentUserEmail: 'user_gen_0',
   },
 };

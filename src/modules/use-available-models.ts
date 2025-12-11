@@ -1,5 +1,5 @@
 ﻿import {create} from "zustand";
-import type {AntigravityAccount} from "@/commands/types/account.types.ts";
+import {AntigravityAccountData} from "@/commands/types/account.types.ts";
 import {CloudCodeAPI} from "@/services/cloudcode-api.ts";
 import {CloudCodeAPITypes} from "@/services/cloudcode-api.types.ts";
 
@@ -8,20 +8,20 @@ type State = {
 }
 
 type Actions = {
-  fetchData: (antigravityAccount: AntigravityAccount) => Promise<void>
+  fetchData: (antigravityAccount: AntigravityAccountData) => Promise<void>
 }
 
 export const useAvailableModels = create<State & Actions>((setState, getState) => ({
   data: {},
-  fetchData: async (antigravityAccount: AntigravityAccount) => {
-    const codeAssistResponse = await CloudCodeAPI.loadCodeAssist(antigravityAccount.api_key);
+  fetchData: async (antigravityAccount: AntigravityAccountData) => {
+    const codeAssistResponse = await CloudCodeAPI.loadCodeAssist(antigravityAccount.auth.access_token);
 
-    const modelsResponse = await CloudCodeAPI.fetchAvailableModels(antigravityAccount.api_key, codeAssistResponse.cloudaicompanionProject);
+    const modelsResponse = await CloudCodeAPI.fetchAvailableModels(antigravityAccount.auth.access_token, codeAssistResponse.cloudaicompanionProject);
 
     setState({
       data: {
         ...getState().data,
-        [antigravityAccount.api_key]: modelsResponse
+        [antigravityAccount.context.email]: modelsResponse
       }
     })
   }

@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { AntigravityCurrentUserInfo } from '../types/tauri';
+import {AntigravityAccountData} from "@/commands/types/account.types.ts";
 
 /**
  * Antigravity 账户管理命令
@@ -9,7 +9,7 @@ export class AccountCommands {
    * 获取当前登录的账户信息
    * @returns 账户认证信息，包含邮箱、数据库路径等
    */
-  static async getCurrentInfo(): Promise<AntigravityCurrentUserInfo> {
+  static async getCurrentInfo(): Promise<AntigravityAccountData> {
     return invoke('get_current_antigravity_account_info');
   }
 
@@ -17,7 +17,7 @@ export class AccountCommands {
    * 获取所有已备份的账户列表
    * @returns 账户列表
    */
-  static async getAntigravityAccounts(): Promise<AntigravityCurrentUserInfo[]> {
+  static async getAntigravityAccounts(): Promise<AntigravityAccountData[]> {
     return invoke('get_antigravity_accounts');
   }
 

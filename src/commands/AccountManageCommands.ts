@@ -1,7 +1,5 @@
-import { invoke } from '@tauri-apps/api/core';
-import type { AntigravityAccount } from './types/account.types';
-import type { AntigravityCurrentUserInfo } from '../types/tauri';
-import type { BackupData, RestoreResult } from './types/backup.types';
+import {invoke} from '@tauri-apps/api/core';
+import type {BackupData, RestoreResult} from './types/backup.types';
 
 /**
  * 账户与备份综合命令
@@ -25,10 +23,10 @@ export class AccountManageCommands {
 
   // ==== 配置加解密 ====
   static async encryptConfig(jsonData: string, password: string): Promise<string> {
-    return invoke('encrypt_config_data', { json_data: jsonData, password });
+    return invoke('encrypt_config_data', { jsonData: jsonData, password });
   }
 
   static async decryptConfig(encryptedData: string, password: string): Promise<string> {
-    return invoke('decrypt_config_data', { encrypted_data: encryptedData, password });
+    return invoke('decrypt_config_data', { encryptedData: encryptedData, password });
   }
 }

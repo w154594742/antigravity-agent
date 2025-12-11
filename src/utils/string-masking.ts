@@ -91,6 +91,7 @@ function maskDomain(domain: string): string {
 }
 
 export const maskName = (username: string): string => {
+  if (!username) return "";
   const trimmed = username.trim(); // 👈 去掉前后空格
   const chars = [...trimmed];
   const n = chars.length;
