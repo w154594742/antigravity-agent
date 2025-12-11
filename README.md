@@ -1,6 +1,6 @@
 # Antigravity Agent
 
-> !!重要: 1.4.0 版本, 本项目彻底进行了重构, 若您之前使用的是旧版本, 请先在老版本备份账户数据后, 然后重新导入!!
+> !!重要: 1.4.0 版本, 本项目彻底进行了重构, 虽然本程序已经处理了迁移, 但开源项目精力有限无法处理所有可能的情况, 若您之前使用的是旧版本, 请先在老版本导出账户数据后, 然后使用新版本重新导入!!
 
 > 开箱即用的 Antigravity 账户管理程序。
 
@@ -38,24 +38,21 @@ Linux ✅️
 遇到问题时，请按照以下步骤提供日志以便快速定位和解决问题：
 
 1. **查找日志文件**：
-   - 日志文件存储位置：
-     - Windows: `%APPDATA%\.antigravity-agent\logs\`
-     - macOS: `~/.config/.antigravity-agent/logs/`
-     - Linux: `~/.config/.antigravity-agent/logs/`
-   - 查找当前日期的日志文件（格式：`antigravity-agent.YYYY-MM-DD.log`，例如：`antigravity-agent.2025-11-24.log`）
+   - 日志文件存储位置（所有平台统一）：
+     - Windows: `%USERPROFILE%\.antigravity-agent\logs\`
+     - macOS: `~/.antigravity-agent/logs/`
+     - Linux: `~/.antigravity-agent/logs/`
+   - 查找当前日期的日志文件（格式：`antigravity-agent.YYYY-MM-DD.log`，例如：`antigravity-agent.2025-12-11.log`）
    - 或者查找最新的日志文件进行复制
+   - 注意：日志文件会自动脱敏处理敏感信息
 
 2. **⚠️ 重要：检查敏感信息**
    - **打开日志文件**，仔细检查是否包含个人敏感信息
    - **特别注意以下内容**：
-     - 完整的邮箱地址（系统已自动脱敏，但仍需确认）
+     - 完整的邮箱地址
      - API 密钥、令牌或密码
      - 用户路径中的真实用户名
      - 其他任何您认为敏感的信息
-   - **如果发现敏感信息**：
-     - 使用文本编辑器手动替换或删除敏感内容
-     - 例如：`user@domain.com` → `u***r@domain.com`
-     - 例如：`/home/john/` → `~/`
 
 ## 📝 TODO 列表
 

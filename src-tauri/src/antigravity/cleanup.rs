@@ -1,7 +1,7 @@
 // Antigravity 用户数据清除模块
 // 负责清除 Antigravity 应用的所有用户认证和设置信息
 
-use rusqlite::Connection;
+use rusqlite::{params, Connection};
 use std::path::Path;
 
 // 导入 platform_utils 模块
@@ -17,11 +17,20 @@ fn clear_database(db_path: &Path, db_name: &str) -> Result<usize, String> {
         .execute("DELETE FROM ItemTable WHERE key = ?", [key])
         .unwrap_or(0);
 
+    // 把 antigravityOnboarding 设置为布尔值 true（写为字符串 "true"） 以跳过首次启动引导
+    let onboarding_key = "antigravityOnboarding";
+    let onboarding_rows = conn
+        .execute(
+            "INSERT OR REPLACE INTO ItemTable (key, value) VALUES (?, ?)",
+            params![onboarding_key, "true"],
+        )
+        .unwrap_or(0);
+
     if rows > 0 {
         tracing::debug!(target: "cleanup::database", key = %key, "已删除字段");
     }
 
-    Ok(rows)
+    Ok(rows + onboarding_rows)
 }
 
 pub async fn clear_all_antigravity_data() -> Result<String, String> {

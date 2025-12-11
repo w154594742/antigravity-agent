@@ -79,6 +79,12 @@ fn main() {
     // 记录系统启动信息
     crate::utils::tracing_config::log_system_info();
 
+    // 阻塞主线程执行一次账户目录迁移检查
+    match crate::directories::migrate_legacy_accounts_if_needed() {
+        Ok(()) => tracing::info!(target: "app::startup", "📦 账户目录迁移检查完成"),
+        Err(e) => tracing::error!(target: "app::startup", "⚠️ 账户目录迁移检查失败: {}", e),
+    }
+
     tauri::Builder::default()
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_shell::init())
