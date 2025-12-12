@@ -75,11 +75,11 @@ jobs:
           fi
           
           {
-            echo "release-body<<'EOF'"
-            echo "$BODY"
+            echo "release_body<<EOF"
+            printf '%s\n' "$BODY"
             echo "EOF"
-            echo "pub-date=$PUB_DATE"
-          } >> $GITHUB_ENV
+            echo "pub_date=$PUB_DATE"
+          } >> "$GITHUB_ENV"
           
           # Show assets count
           ASSET_COUNT=$(echo "$RELEASE_DATA" | jq '.assets | length')
@@ -195,8 +195,8 @@ jobs:
           # Generate final JSON
           jq -n \
             --arg version "$TAG" \
-            --arg notes "$release-body" \
-            --arg pub_date "$pub-date" \
+            --arg notes "$release_body" \
+            --arg pub_date "$pub_date" \
             --argjson platforms "$PLATFORMS" \
             '{
               version: $version,
