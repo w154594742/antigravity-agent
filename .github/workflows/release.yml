@@ -214,8 +214,8 @@ jobs:
               cd "$BUNDLE_DIR/dmg/"
               for file in *.dmg; do
                 if [ -f "$file" ]; then
-                  new_name=$(echo "$file" | sed -E "s/Antigravity Agent_[0-9]+\.[0-9]+\.[0-9]+/Antigravity Agent_$VERSION/")
-                  new_name="${new_name%.dmg}_${ARCH}.dmg"
+                  # Normalize to a deterministic name to avoid arch/version duplication
+                  new_name="Antigravity Agent_${VERSION}_${ARCH}.dmg"
                   rename_with_sig "$file" "$new_name"
                 fi
               done
@@ -225,12 +225,8 @@ jobs:
               cd "$BUNDLE_DIR/macos/"
               for file in *.app.tar.gz; do
                 if [ -f "$file" ]; then
-                  base=$(echo "$file" | sed -E "s/_[0-9]+\.[0-9]+\.[0-9]+/_$VERSION/")
-                  if [[ "$base" == *"_${ARCH}.app.tar.gz" ]]; then
-                    new_name="$base"
-                  else
-                    new_name="${base%.app.tar.gz}_${ARCH}.app.tar.gz"
-                  fi
+                  # Deterministic name ensures both macOS arches are preserved
+                  new_name="Antigravity Agent_${VERSION}_${ARCH}.app.tar.gz"
                   rename_with_sig "$file" "$new_name"
                 fi
               done

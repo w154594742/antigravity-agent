@@ -74,8 +74,12 @@ jobs:
             PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           fi
           
-          echo "release-body=$BODY" >> $GITHUB_ENV
-          echo "pub-date=$PUB_DATE" >> $GITHUB_ENV
+          {
+            echo "release-body<<'EOF'"
+            echo "$BODY"
+            echo "EOF"
+            echo "pub-date=$PUB_DATE"
+          } >> $GITHUB_ENV
           
           # Show assets count
           ASSET_COUNT=$(echo "$RELEASE_DATA" | jq '.assets | length')
@@ -125,8 +129,8 @@ jobs:
             return 1
           }
           
-          # Windows updater bundle (NSIS zip)
-          detect_file "*setup*.nsis.zip" "windows" "x86_64" "nsis"
+          # Windows updater bundle (NSIS installer)
+          detect_file "*setup*.exe" "windows" "x86_64" "nsis" || detect_file "*.msi" "windows" "x86_64" "msi"
           
           # macOS updater bundle (app tarball)
           detect_file "*aarch64*.app.tar.gz" "darwin" "aarch64" "app"
