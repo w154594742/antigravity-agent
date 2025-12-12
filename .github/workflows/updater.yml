@@ -63,7 +63,7 @@ jobs:
           echo "📦 Fetching release information for $TAG..."
           
           # Get release details with assets
-          RELEASE_DATA=$(gh release view "$TAG" --json body,publishedAt,assets --jq '.')
+          RELEASE_DATA=$(gh release view "$TAG" --repo "$REPO" --json body,publishedAt,assets --jq '.')
           echo "$RELEASE_DATA" > release.json
           
           # Extract release body and published date
