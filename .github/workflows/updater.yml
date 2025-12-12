@@ -113,8 +113,9 @@ jobs:
             local file=$(find . -name "$pattern" | head -1)
             if [ -n "$file" ] && [ -f "$file" ]; then
               echo "✅ $platform-$arch: $(basename $file)"
-              echo "${platform}-${arch}-file=$file" >> $GITHUB_ENV
-              echo "${platform}-${arch}-type=$type" >> $GITHUB_ENV
+              local var_prefix="${platform}_${arch}"
+              echo "${var_prefix}_file=$file" >> $GITHUB_ENV
+              echo "${var_prefix}_type=$type" >> $GITHUB_ENV
               
               # Check for signature file
               local sig_file="${file}.sig"
@@ -122,7 +123,7 @@ jobs:
                 echo "❌ Missing signature for $platform-$arch: $(basename $file)"
                 exit 1
               fi
-              echo "${platform}-${arch}-sig=$sig_file" >> $GITHUB_ENV
+              echo "${var_prefix}_sig=$sig_file" >> $GITHUB_ENV
               echo "   └─ Signature: $(basename $sig_file)"
               return 0
             fi
@@ -141,7 +142,7 @@ jobs:
           
           echo ""
           echo "=== Detection Summary ==="
-          detected_count=$(env | grep -- '-file=' | wc -l)
+          detected_count=$(env | grep -- '_file=' | wc -l)
           echo "Detected $detected_count platform artifacts"
 
       - name: Generate latest.json
@@ -187,10 +188,10 @@ jobs:
           }
           
           # Add platforms
-          add_platform "windows-x86_64" "windows-x86_64-file" "windows-x86_64-sig"
-          add_platform "darwin-aarch64" "darwin-aarch64-file" "darwin-aarch64-sig"
-          add_platform "darwin-x86_64" "darwin-x86_64-file" "darwin-x86_64-sig"
-          add_platform "linux-x86_64" "linux-x86_64-file" "linux-x86_64-sig"
+          add_platform "windows-x86_64" "windows_x86_64_file" "windows_x86_64_sig"
+          add_platform "darwin-aarch64" "darwin_aarch64_file" "darwin_aarch64_sig"
+          add_platform "darwin-x86_64" "darwin_x86_64_file" "darwin_x86_64_sig"
+          add_platform "linux-x86_64" "linux_x86_64_file" "linux_x86_64_sig"
           
           # Generate final JSON
           jq -n \
